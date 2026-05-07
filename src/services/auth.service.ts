@@ -2,6 +2,7 @@ import { LoginData, RegisterData } from "../types/auth.types";
 import prisma from "../prisma/client";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { ApiError } from "../error/api.error";
 
 export class AuthService {
     static async register(data: RegisterData): Promise<boolean> {
@@ -14,7 +15,10 @@ export class AuthService {
         });
 
         if (existingUser) {
-            throw new Error("Пользователь с таким email уже существует.");
+            throw new ApiError(
+                409,
+                "Пользователь с таким email уже существует.",
+            );
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -39,13 +43,13 @@ export class AuthService {
         });
 
         if (!user) {
-            throw new Error("Пользователь с таким email не найден.");
+            throw new ApiError(404, "Пользователь с таким email не найден.");
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
-            throw new Error("Неверный пароль.");
+            throw new ApiError(400, "Неверный пароль.");
         }
 
         const token = jwt.sign(
