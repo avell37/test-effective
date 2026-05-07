@@ -13,7 +13,9 @@ export class AuthController {
                 .status(201)
                 .json({ message: "Пользователь успешно зарегистрирован" });
         } catch (err) {
-            throw new Error(`Ошибка при регистрации пользователя: ${err}`);
+            return res.status(404).json({
+                message: err instanceof Error ? err.message : "Unknown error",
+            });
         }
     }
 
@@ -25,7 +27,9 @@ export class AuthController {
 
             return res.status(200).json({ token });
         } catch (err) {
-            throw new Error(`Ошибка при входе пользователя: ${err}`);
+            return res.status(404).json({
+                message: err instanceof Error ? err.message : "Unknown error",
+            });
         }
     }
 }
